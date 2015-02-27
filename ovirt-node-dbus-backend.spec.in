@@ -1,0 +1,39 @@
+%global product_family oVirt Node
+%global         package_version @PACKAGE_VERSION@
+%global         package_name @PACKAGE_NAME@
+
+
+Name:           ovirt-node-dbus-backend
+Version:        @PACKAGE_RPM_VERSION@
+Release:        @PACKAGE_RPM_RELEASE@%{?release_suffix}%{?dist}
+License:        GPLv2+
+Group:          Applications/System
+Summary:        DBus backend for %{product_family} configuration
+Requires:       dbus-python
+BuildArch:      noarch
+
+%post
+
+%description
+This package provides a Dbus backend for use with%{product_family} interactions through cockpit.
+
+%files
+%{python_sitelib}/ovirt/node/dbus/service.py*
+%{_libdir}/systemd/system/node-dbus.service
+
+%prep
+%setup -q -n "%{name}-%{package_version}"
+
+%build
+%configure
+
+%install
+%{__rm} -rf %{buildroot}
+make install DESTDIR=%{buildroot}
+mkdir %{buildroot}%{_libexecdir}
+ln -sf %{python_sitelib}/ovirt/node/dbus/service.py %{_libexecdir}/node-dbus-backend
+chmod +x %{_libexecdir}/node-dbus-backend
+
+%changelog
+* Thu Feb 26 2015 Ryan Barry <rbarry@redhat.com> 0.1
+- initial commit
