@@ -59,6 +59,7 @@ if __name__ == "__main__":
 
     elif "-c" in sys.argv:
         bus = dbus.SessionBus()
-        helloservice = bus.get_object(BUS_NAME, BUS_PATH+"/Service")
-        print helloservice.get("/files/etc/hostname/hostname")
+        obj = bus.get_object(BUS_NAME, "/Service")
+        helloservice = dbus.Interface(obj, "org.augeasproject.Augeas")
+        print helloservice.closure("/files/etc/hostname/hostname")
 
