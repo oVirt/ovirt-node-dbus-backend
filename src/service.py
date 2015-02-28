@@ -13,12 +13,14 @@ BUS_PATH = "/org/augeasproject/Augeas"
 
 DBusGMainLoop(set_as_default=True)
 
+
 class Test(object):
     def get(self, path):
         import augeas
         print "Called"
         print path
         return augeas.augeas().get(path)
+
 
 class DBusFactory(object):
     name = BUS_NAME
@@ -43,7 +45,9 @@ class DBusFactory(object):
                 return method(path)
 
             closure.__name__ = method.__name__
-            dbus.service.method(name)(closure)
+            locals()[method.__name__] = closure
+            dbus.service.method(name, in_signature="s")(
+                locals()[method.__name__])
 
         return Service()
 
@@ -62,4 +66,4 @@ if __name__ == "__main__":
         obj = bus.get_object(BUS_NAME, "/Service")
         helloservice = dbus.Interface(obj, "org.augeasproject.Augeas")
         print helloservice.closure("/files/etc/hostname/hostname")
-
+        print helloservice.closure("/files/etc/resolv.conf/nameserver[1]")
