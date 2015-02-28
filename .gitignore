@@ -13,5 +13,6 @@ install-sh
 missing
 stamp-h1
 *~
+ovirt-node-dbus-backend.spec
 tmp.repos/*
 
