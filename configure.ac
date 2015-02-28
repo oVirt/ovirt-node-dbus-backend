@@ -18,17 +18,17 @@ dnl
 AC_PREREQ(2.60)
 
 define([VERSION_MAJOR], [0])
-define([VERSION_MINOR], [3])
+define([VERSION_MINOR], [1])
 define([VERSION_FIX], [0])
 define([VERSION_NUMBER], VERSION_MAJOR[.]VERSION_MINOR[.]VERSION_FIX)
 define([VERSION_SUFFIX], [_master])
 
-AC_INIT([ovirt-node-plugin-hosted-engine], VERSION_NUMBER[]VERSION_SUFFIX, [devel@ovirt.org])
+AC_INIT([ovirt-node-dbus-backend], VERSION_NUMBER[]VERSION_SUFFIX, [devel@ovirt.org])
 PACKAGE_RPM_VERSION="VERSION_NUMBER"
 PACKAGE_RPM_RELEASE="0.0.$(echo VERSION_SUFFIX | sed 's/^_//')"
 AC_SUBST([PACKAGE_RPM_VERSION])
 AC_SUBST([PACKAGE_RPM_RELEASE])
-AC_SUBST([PLUGINNAME], ['oVirt Node Hosted Engine Plugin'])
+AC_SUBST([PLUGINNAME], ['oVirt Node Dbus Backend'])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign -Wno-portability tar-pax])
 
@@ -39,7 +39,6 @@ AM_PATH_PYTHON
 
 AC_CONFIG_FILES([Makefile
                 src/Makefile
-                recipe/Makefile
-                rwtab/Makefile
-                ovirt-node-plugin-hosted-engine.spec])
+                systemd/Makefile
+                ovirt-node-dbus-backend.spec])
 AC_OUTPUT
