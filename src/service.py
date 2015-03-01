@@ -65,5 +65,5 @@ if __name__ == "__main__":
         bus = dbus.SessionBus()
         obj = bus.get_object(BUS_NAME, "/Service")
         helloservice = dbus.Interface(obj, "org.augeasproject.Augeas")
-        print helloservice.closure("/files/etc/hostname/hostname")
-        print helloservice.closure("/files/etc/resolv.conf/nameserver[1]")
+        print helloservice.get("/files/etc/hostname/hostname")
+        print helloservice.get("/files/etc/resolv.conf/nameserver[1]")
