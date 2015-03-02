@@ -9,6 +9,7 @@ Release:        @PACKAGE_RPM_RELEASE@%{?release_suffix}%{?dist}
 License:        GPLv2+
 Group:          Applications/System
 Summary:        DBus backend for %{product_family} configuration
+Source0:        http://plain.resources.ovirt.org/pub/ovirt-master-snapshot/src/%{name}/%{name}-%{package_version}.tar.gz
 Requires:       dbus-python
 BuildArch:      noarch
 
@@ -19,7 +20,8 @@ This package provides a Dbus backend for use with%{product_family} interactions 
 
 %files
 %{python_sitelib}/ovirt/node/dbus/service.py*
-%{_libdir}/systemd/system/node-dbus.service
+%{_unitdir}/node-dbus.service
+%{_libexecdir}/node-dbus-backend
 
 %prep
 %setup -q -n "%{name}-%{package_version}"
@@ -31,8 +33,7 @@ This package provides a Dbus backend for use with%{product_family} interactions 
 %{__rm} -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 mkdir %{buildroot}%{_libexecdir}
-ln -sf %{python_sitelib}/ovirt/node/dbus/service.py %{_libexecdir}/node-dbus-backend
-chmod +x %{_libexecdir}/node-dbus-backend
+ln -sf %{python_sitelib}/ovirt/node/dbus/service.py ${RPM_BUILD_ROOT}/%{_libexecdir}/node-dbus-backend
 
 %changelog
 * Thu Feb 26 2015 Ryan Barry <rbarry@redhat.com> 0.1

@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/libexec/node-dbus-backend
+ExecStart=python /usr/libexec/node-dbus-backend -d
 
 [Install]
 WantedBy=multi-user.target
