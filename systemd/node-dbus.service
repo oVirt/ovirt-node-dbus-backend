@@ -3,9 +3,9 @@ Description=oVirt Node Dbus service
 After=network.target
 
 [Service]
-Type=oneshot
+Type=simple
 RemainAfterExit=yes
-ExecStart=python /usr/libexec/node-dbus-backend -d
+ExecStart=/usr/bin/python /usr/libexec/node-dbus-backend -d
 
 [Install]
 WantedBy=multi-user.target
