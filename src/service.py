@@ -89,6 +89,8 @@ class DBusFactory(object):
                 # we do this
                 @decorator
                 def dec(func, *args, **kwargs):
+                    # Sub out self if it isn't right. Mostly being a wrapped
+                    # class
                     if not isinstance(args[0], method.im_class):
                         args_list = list(args)
                         args_list[0] = self.cls.instance
@@ -111,7 +113,11 @@ class DBusFactory(object):
                 # some metaprogramming, like resetting the class name, which
                 # we can't do without referencing it directly
                 locals()[method.__name__] = method
-                locals()[method.__name__].im_class = cls.cls
+                # If it's a wrapped class, pull out the real one
+                if isinstance(self.cls, ConfigDefaultsWrapper):
+                    locals()[method.__name__].im_class = cls.cls
+                else:
+                    locals()[method.__name__].im_class = cls
                 print "Exporting %s on %s" % (method.__name__, name)
                 dbus.service.method(name)(locals()[method.__name__])
 
