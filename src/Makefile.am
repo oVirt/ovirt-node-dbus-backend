@@ -19,7 +19,10 @@ nodeconfdir = $(sysconfdir)/sysconfig
 
 pyovirtdbusdir = $(pythondir)/ovirt/node/dbus
 pyovirtdbus_PYTHON = \
-  service.py 
+  factory.py \
+  service.py \
+  testers.py \
+  wrappers.py
 
 # Requires python-pep8 package (Fedora)
 check-local: check-local-pep8
