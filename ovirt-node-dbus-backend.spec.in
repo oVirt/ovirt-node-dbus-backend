@@ -11,6 +11,7 @@ Group:          Applications/System
 Summary:        DBus backend for %{product_family} configuration
 Source0:        http://plain.resources.ovirt.org/pub/ovirt-master-snapshot/src/%{name}/%{name}-%{package_version}.tar.gz
 Requires:       dbus-python
+Requires:       python-decorator
 BuildArch:      noarch
 
 %post
