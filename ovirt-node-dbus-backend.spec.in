@@ -20,6 +20,7 @@ BuildArch:      noarch
 This package provides a Dbus backend for use with%{product_family} interactions through cockpit.
 
 %files
+%{python_sitelib}/ovirt/node/dbus/__init__.py*
 %{python_sitelib}/ovirt/node/dbus/factory.py*
 %{python_sitelib}/ovirt/node/dbus/log.py*
 %{python_sitelib}/ovirt/node/dbus/service.py*
