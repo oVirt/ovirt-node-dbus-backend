@@ -24,6 +24,7 @@ SHELL := /bin/bash
 
 
 SUBDIRS = \
+  dbus \
 	src \
 	systemd
 

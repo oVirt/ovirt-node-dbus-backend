@@ -22,6 +22,7 @@ This package provides a Dbus backend for use with%{product_family} interactions 
 %files
 %{python_sitelib}/ovirt/node/dbus/service.py*
 %{_unitdir}/node-dbus.service
+%{_sysconfdir}/dbus-1/system.d/org.ovirt.node.conf
 %{_libexecdir}/node-dbus-backend
 
 %prep

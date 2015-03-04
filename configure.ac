@@ -38,6 +38,7 @@ AC_CHECK_PROGS([RPMBUILD], [rpmbuild])
 AM_PATH_PYTHON
 
 AC_CONFIG_FILES([Makefile
+                dbus/Makefile
                 src/Makefile
                 systemd/Makefile
                 ovirt-node-dbus-backend.spec])
