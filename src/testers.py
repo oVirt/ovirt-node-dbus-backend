@@ -52,6 +52,7 @@ class Test(object):
         return augeas.augeas().get(path)
 
     def configure_one(self, path):
+        self.output = self.get(path)
         self.trans_name = "configure_one"
 
     def configure_multi(self, a, b):
