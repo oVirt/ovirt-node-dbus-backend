@@ -19,14 +19,15 @@ if __name__ == "__main__":
         DBusGMainLoop(set_as_default=True)
         loop = gobject.MainLoop()
         print "listening ..."
-        c = ConfigDefaultsWrapper(Test)
-        d = DBusFactory(BUS_NAME, c, instance=c.instance)
-        d.service_factory()
-        p = DBusFactory(BUS_NAME, Unwrapped)
-        p.service_factory()
+        if "--test" in sys.argv:
+            c = ConfigDefaultsWrapper(Test)
+            d = DBusFactory(BUS_NAME, c, instance=c.instance)
+            d.service_factory()
+            p = DBusFactory(BUS_NAME, Unwrapped)
+            p.service_factory()
         loop.run()
 
-    elif "-c" in sys.argv:
+    elif "-c" in sys.argv and "--test" in sys.argv:
         bus = dbus.SystemBus()
         obj = bus.get_object(BUS_NAME, "/org/ovirt/node/Test")
         helloservice = dbus.Interface(obj, "org.ovirt.node")
