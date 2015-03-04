@@ -52,14 +52,28 @@ class Test(object):
         return augeas.augeas().get(path)
 
     def configure_one(self, path):
-        self.output = self.get(path)
+        self.trans_name = "configure_one"
 
     def configure_multi(self, a, b):
         self.output = "%s, %s" % (a, b)
+        self.trans_name = "configure_multi"
 
     def configure_arr(self, x):
         self.output = "%s" % ",".join(i for i in x)
+        self.trans_name = "configure_arr"
 
     def transaction(self):
         logger.debug("Running transaction")
-        return self.output
+        from ovirt.node.utils import Transaction
+
+        output = self.output
+
+        class Wrapper(Transaction.Element):
+            title = "Test transaction for %s" % self.trans_name
+
+            def commit(self):
+                print output
+
+        tx = Transaction("Test")
+        tx.append(Wrapper())
+        return tx
