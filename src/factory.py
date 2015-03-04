@@ -1,7 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# __init__.py - Copyright (C) 2015 Red Hat, Inc.
+# Written by Ryan Barry <rbarry@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA  02110-1301, USA.  A copy of the GNU General Public License is
+# also available at http://www.gnu.org/copyleft/gpl.html.
+
 import dbus
 import dbus.service
 from decorator import decorator
+import logging
 import types
+
 
 class DBusFactory(object):
     """
@@ -15,6 +37,7 @@ class DBusFactory(object):
         self.cls = cls
         self.name = name
         self.instance = instance or cls()
+        self.logger = logging.getLogger(__name__)
 
     def service_factory(self):
         """
@@ -24,14 +47,17 @@ class DBusFactory(object):
         to easily get on dbus
         """
 
-        name = self.name
         cls = self.cls
         instance = self.instance
 
+        name = self.name
+        path = "/" + name.replace(".", "/")
+        leaf = "%s/%s" % (path, cls.__name__)
+
+        self.logger.debug("Factory started for %s" % self.cls.__name__)
+
         class Service(dbus.service.Object):
             def __init__(self):
-                path = "/" + name.replace(".", "/")
-                leaf = "%s/%s" % (path, cls.__name__)
                 bus = dbus.service.BusName(name, bus=dbus.SystemBus())
                 dbus.service.Object.__init__(self, bus, leaf)
 
@@ -55,6 +81,7 @@ class DBusFactory(object):
                 """
                 funcs = [getattr(cls_iter, func) for func in dir(cls_iter) if
                          func.startswith("configure")]
+
                 return funcs
 
             # Because dbus-python doesn't like to export functions with varargs
@@ -90,12 +117,15 @@ class DBusFactory(object):
                 setattr(self, method.__name__, closed)
 
             for method in methods():
+                self.logger.debug("Found a function named %s" %
+                                  method.func_name)
                 # Add to local variables so we can export it but still do
                 # some metaprogramming, like resetting the class name, which
                 # we can't do without referencing it directly
                 locals()[method.__name__] = method
                 locals()[method.__name__].im_class = instance.__class__
-                print "Exporting %s on %s" % (method.__name__, name)
+                self.logger.info("Exporting %s on %s: %s" % (method.__name__,
+                                 leaf, name))
                 dbus.service.method(name)(locals()[method.__name__])
 
         return Service()
