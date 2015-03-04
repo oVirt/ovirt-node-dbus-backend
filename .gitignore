@@ -14,6 +14,7 @@ missing
 py-compile
 stamp-h1
 *~
+*.gz
 ovirt-node-dbus-backend.spec
 tmp.repos/*
 
