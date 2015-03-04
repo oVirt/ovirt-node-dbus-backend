@@ -20,8 +20,9 @@
 
 import dbus
 from decorator import decorator
+import logging
 from ovirt.node.utils.console import TransactionProgress
-
+from ovirt.node.utils import Transaction
 
 class ConfigDefaultsWrapper(object):
     """
@@ -74,10 +75,8 @@ class TransactionWrapper(TransactionProgress):
     """
 
     def __init__(self, transaction, is_dry, initial_text=""):
-        print transaction
         super(TransactionWrapper, self).__init__(transaction, is_dry,
                                                  initial_text)
-
     def _print_func(self, txt):
         pass
 
@@ -85,11 +84,10 @@ class TransactionWrapper(TransactionProgress):
         if self.transaction:
             self.logger.debug("Initiating transaction")
             super(TransactionWrapper, self).run_transaction()
-            return self.texts
+            return "\n".join(self.texts)
         else:
             self.update("There were no changes, nothing to do.")
 
     def __print_title(self):
-        if self.transaction.title:
-            self.texts.extend([self.transaction.title,
-                               "-" * len(self.transaction.title)])
+        self.texts.extend([self.transaction.title,
+                           "-" * len(self.transaction.title)])
