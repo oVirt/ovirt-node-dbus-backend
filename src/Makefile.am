@@ -20,6 +20,7 @@ nodeconfdir = $(sysconfdir)/sysconfig
 pyovirtdbusdir = $(pythondir)/ovirt/node/dbus
 pyovirtdbus_PYTHON = \
   factory.py \
+  log.py \
   service.py \
   testers.py \
   wrappers.py

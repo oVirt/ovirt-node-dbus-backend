@@ -21,6 +21,7 @@ This package provides a Dbus backend for use with%{product_family} interactions 
 
 %files
 %{python_sitelib}/ovirt/node/dbus/factory.py*
+%{python_sitelib}/ovirt/node/dbus/log.py*
 %{python_sitelib}/ovirt/node/dbus/service.py*
 %{python_sitelib}/ovirt/node/dbus/testers.py*
 %{python_sitelib}/ovirt/node/dbus/wrappers.py*
