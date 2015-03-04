@@ -6,11 +6,25 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 import gobject
 from decorator import decorator
+import types
 
 BUS_NAME = "org.ovirt.node"
 BUS_PATH = "/org.ovirt.node"
 
 DBusGMainLoop(set_as_default=True)
+
+
+class Unwrapped(object):
+    """
+    A class which mimics possible future design or external Dbus services
+    which do not require transactions to be run every time
+    """
+
+    output = "Not run yet"
+
+    def configure(self, path):
+        import augeas
+        return augeas.augeas().get(path)
 
 
 class Test(object):
@@ -55,7 +69,7 @@ class DBusFactory(object):
     def __init__(self, name, cls, instance=None):
         self.cls = cls
         self.name = name
-        self.instance = instance or cls
+        self.instance = instance or cls()
 
     def service_factory(self):
         """
@@ -75,6 +89,19 @@ class DBusFactory(object):
                 leaf = "%s/%s" % (path, cls.__name__)
                 bus = dbus.service.BusName(name, bus=dbus.SystemBus())
                 dbus.service.Object.__init__(self, bus, leaf)
+
+            def instance_method(obj):
+                """
+                Checks if an object is a bound method
+                """
+                if not isinstance(obj, types.MethodType):
+                    # Not a method
+                    return False
+                if issubclass(obj.im_class, type) or isinstance(
+                        obj.im_class, types.ClassType):
+                    # Method is a classmethod
+                    return False
+                return True
 
             def methods(cls_iter=self):
                 """
@@ -103,6 +130,11 @@ class DBusFactory(object):
                 return dec
 
             for method in methods(self.cls):
+                # If it's unwrapped, pull out and bind the function so it can
+                # be exported
+                if instance_method(method):
+                    method = method.im_func
+                    method.im_class = method.__class__
                 # In order to get the right name on the bus on EL7 and later
                 # distros, re-set the name, and add it to the class, because
                 # decorator parsing order needs it to be realized at
@@ -170,6 +202,8 @@ if __name__ == "__main__":
         c = ConfigDefaultsWrapper(Test)
         d = DBusFactory(BUS_NAME, c, instance=c.instance)
         d.service_factory()
+        p = DBusFactory(BUS_NAME, Unwrapped)
+        p.service_factory()
         loop.run()
 
     elif "-c" in sys.argv:
@@ -177,7 +211,9 @@ if __name__ == "__main__":
         obj = bus.get_object(BUS_NAME, "/org/ovirt/node/Test")
         helloservice = dbus.Interface(obj, "org.ovirt.node")
         print helloservice.configure_one("/files/etc/hostname/hostname")
-        print helloservice.configure_one("/files/etc/resolv.conf/nameserver[1]"
-                                         )
         print helloservice.configure_multi(1, 2)
         print helloservice.configure_arr([1, 2])
+        obj = bus.get_object(BUS_NAME, "/org/ovirt/node/Unwrapped")
+        unwrapped = dbus.Interface(obj, "org.ovirt.node")
+        print unwrapped.configure("/files/etc/resolv.conf/nameserver[1]"
+                                  )
