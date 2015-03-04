@@ -24,7 +24,10 @@ class Unwrapped(object):
 
     def configure(self, path):
         import augeas
-        return augeas.augeas().get(path)
+        self.output = augeas.augeas().get(path)
+
+    def configure_return(self):
+        return self.output
 
 
 class Test(object):
@@ -215,5 +218,5 @@ if __name__ == "__main__":
         print helloservice.configure_arr([1, 2])
         obj = bus.get_object(BUS_NAME, "/org/ovirt/node/Unwrapped")
         unwrapped = dbus.Interface(obj, "org.ovirt.node")
-        print unwrapped.configure("/files/etc/resolv.conf/nameserver[1]"
-                                  )
+        unwrapped.configure("/files/etc/resolv.conf/nameserver[1]")
+        print unwrapped.configure_return()
