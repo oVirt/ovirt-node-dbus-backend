@@ -107,6 +107,7 @@ class DBusFactory(object):
                 if instance_method(method):
                     method = method.im_func
                     method.im_class = method.__class__
+
                 # In order to get the right name on the bus on EL7 and later
                 # distros, re-set the name, and add it to the class, because
                 # decorator parsing order needs it to be realized at
@@ -119,6 +120,7 @@ class DBusFactory(object):
             for method in methods():
                 self.logger.debug("Found a function named %s" %
                                   method.func_name)
+
                 # Add to local variables so we can export it but still do
                 # some metaprogramming, like resetting the class name, which
                 # we can't do without referencing it directly
