@@ -20,9 +20,8 @@
 
 import dbus
 from decorator import decorator
-import logging
 from ovirt.node.utils.console import TransactionProgress
-from ovirt.node.utils import Transaction
+
 
 class ConfigDefaultsWrapper(object):
     """
@@ -41,6 +40,18 @@ class ConfigDefaultsWrapper(object):
         self.populate()
         self.instance = cls()
 
+    def dbus_unwrapper(self, arg):
+        if type(arg) is dbus.String:
+            return "%s" % arg
+        if type(arg) is dbus.Array:
+            return [self.dbus_unwrapper(x) for x in arg]
+        if type(arg) is dbus.Int32:
+            return int(arg)
+        if type(arg) is dbus.Boolean:
+            return bool(arg)
+        else:
+            return arg
+
     def populate(self):
         funcs = [getattr(self.cls, func) for func in dir(self.cls) if
                  func.startswith("configure")]
@@ -51,12 +62,7 @@ class ConfigDefaultsWrapper(object):
             # we keep the original argspec and dbus-python is happy
             @decorator
             def dec(func, *args, **kwargs):
-                def dbus_unwrapper(arg):
-                    if type(arg) is dbus.String:
-                        return "%s" % arg
-                    else:
-                        return arg
-                wrapped_args = [dbus_unwrapper(arg) for arg in args]
+                wrapped_args = [self.dbus_unwrapper(arg) for arg in args]
                 args = wrapped_args
                 func(*args)
                 return TransactionWrapper(self.instance.transaction(),
@@ -77,6 +83,7 @@ class TransactionWrapper(TransactionProgress):
     def __init__(self, transaction, is_dry, initial_text=""):
         super(TransactionWrapper, self).__init__(transaction, is_dry,
                                                  initial_text)
+
     def _print_func(self, txt):
         pass
 

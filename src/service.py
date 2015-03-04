@@ -54,8 +54,8 @@ if __name__ == "__main__":
             from ovirt.node.config import defaults
             import inspect
             for name, obj in inspect.getmembers(defaults):
-                if inspect.isclass(obj) and issubclass(obj,
-                        defaults.NodeConfigFileSection):
+                if inspect.isclass(obj) and \
+                        issubclass(obj, defaults.NodeConfigFileSection):
                     c = ConfigDefaultsWrapper(obj)
                     d = DBusFactory(BUS_NAME, c, instance=c.instance)
                     d.service_factory()
