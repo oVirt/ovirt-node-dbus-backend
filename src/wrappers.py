@@ -62,8 +62,8 @@ class ConfigDefaultsWrapper(object):
             # we keep the original argspec and dbus-python is happy
             @decorator
             def dec(func, *args, **kwargs):
-                wrapped_args = [self.dbus_unwrapper(arg) for arg in args]
-                args = wrapped_args
+                unwrapped_args = [self.dbus_unwrapper(arg) for arg in args]
+                args = unwrapped_args
                 func(*args)
                 return TransactionWrapper(self.instance.transaction(),
                                           is_dry=False).run()
