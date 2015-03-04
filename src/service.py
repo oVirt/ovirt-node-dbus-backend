@@ -33,7 +33,6 @@ import log
 logger = None
 
 BUS_NAME = "org.ovirt.node"
-BUS_PATH = "/org.ovirt.node"
 
 DBusGMainLoop(set_as_default=True)
 
@@ -51,6 +50,15 @@ if __name__ == "__main__":
             d.service_factory()
             p = DBusFactory(BUS_NAME, Unwrapped)
             p.service_factory()
+        else:
+            from ovirt.node.config import defaults
+            import inspect
+            for name, obj in inspect.getmembers(defaults):
+                if inspect.isclass(obj) and issubclass(obj,
+                        defaults.NodeConfigFileSection):
+                    c = ConfigDefaultsWrapper(obj)
+                    d = DBusFactory(BUS_NAME, c, instance=c.instance)
+                    d.service_factory()
         loop.run()
 
     elif "-c" in sys.argv and "--test" in sys.argv:
