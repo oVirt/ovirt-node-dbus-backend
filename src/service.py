@@ -52,7 +52,7 @@ class Test(object):
         self.output = "%s, %s" % (a, b)
 
     def configure_arr(self, x):
-        self.output = "%s" % x
+        self.output = "%s" % ",".join(i for i in x)
 
     def transaction(self):
         print "Running transaction"
@@ -215,7 +215,7 @@ if __name__ == "__main__":
         helloservice = dbus.Interface(obj, "org.ovirt.node")
         print helloservice.configure_one("/files/etc/hostname/hostname")
         print helloservice.configure_multi(1, 2)
-        print helloservice.configure_arr([1, 2])
+        print helloservice.configure_arr(["1", "2"])
         obj = bus.get_object(BUS_NAME, "/org/ovirt/node/Unwrapped")
         unwrapped = dbus.Interface(obj, "org.ovirt.node")
         unwrapped.configure("/files/etc/resolv.conf/nameserver[1]")
