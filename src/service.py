@@ -47,12 +47,15 @@ class DBusFactory(object):
     Generate dbus objects from python classes which are passed in.
     Take the interface as input, but generate the paths dynamically
     from method and class names
+
+    Pass in an instance of the base class if it's a wrapped class
     """
     name = BUS_NAME
 
-    def __init__(self, name, cls):
+    def __init__(self, name, cls, instance=None):
         self.cls = cls
         self.name = name
+        self.instance = instance or cls
 
     def service_factory(self):
         """
@@ -64,6 +67,7 @@ class DBusFactory(object):
 
         name = self.name
         cls = self.cls
+        instance = self.instance
 
         class Service(dbus.service.Object):
             def __init__(self):
@@ -93,7 +97,7 @@ class DBusFactory(object):
                     # class
                     if not isinstance(args[0], method.im_class):
                         args_list = list(args)
-                        args_list[0] = self.cls.instance
+                        args_list[0] = self.instance
                         args = args_list
                     return func(*args)
                 return dec
@@ -113,11 +117,7 @@ class DBusFactory(object):
                 # some metaprogramming, like resetting the class name, which
                 # we can't do without referencing it directly
                 locals()[method.__name__] = method
-                # If it's a wrapped class, pull out the real one
-                if isinstance(self.cls, ConfigDefaultsWrapper):
-                    locals()[method.__name__].im_class = cls.cls
-                else:
-                    locals()[method.__name__].im_class = cls
+                locals()[method.__name__].im_class = instance.__class__
                 print "Exporting %s on %s" % (method.__name__, name)
                 dbus.service.method(name)(locals()[method.__name__])
 
@@ -151,12 +151,6 @@ class ConfigDefaultsWrapper(object):
             def wrapper(cls):
                 @decorator
                 def dec(func, *args, **kwargs):
-                    # Sub out self for the actual instance so we can
-                    # run the transaction
-                    if isinstance(args[0], self.cls):
-                        args_list = list(args)
-                        args_list[0] = self.instance
-                        args = args_list
                     func(*args)
                     return self.instance.transaction()
                 return dec
@@ -175,7 +169,7 @@ if __name__ == "__main__":
         loop = gobject.MainLoop()
         print "listening ..."
         c = ConfigDefaultsWrapper(Test)
-        d = DBusFactory(BUS_NAME, c)
+        d = DBusFactory(BUS_NAME, c, instance=c.instance)
         d.service_factory()
         loop.run()
 
