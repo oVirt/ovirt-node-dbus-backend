@@ -147,16 +147,15 @@ class ConfigDefaultsWrapper(object):
 
         for func in funcs:
             # Run in another closure so the transaction can be triggered
-            # in one go from dbus
-            def wrapper(cls):
-                @decorator
-                def dec(func, *args, **kwargs):
-                    func(*args)
-                    return self.instance.transaction()
-                return dec
+            # in one go from dbus. Also, use decorate.decorate again so
+            # we keep the original argspec and dbus-python is happy
+            @decorator
+            def dec(func, *args, **kwargs):
+                func(*args)
+                return self.instance.transaction()
 
             # Pass in the real attributes make the wrapper transparent
-            wrapped = wrapper(self.cls)(func.im_func)
+            wrapped = dec(func.im_func)
             wrapped.im_class = self.cls
             wrapped.__name__ = func.__name__
             setattr(self, func.__name__, wrapped)
