@@ -33,13 +33,13 @@ class Unwrapped(object):
     output = "Not run yet"
 
     def configure(self, path):
-        self.output = augeas.augeas().get(path)
+        self.output = augeas.Augeas().get(path)
 
     def configure_return(self):
         return self.output
 
 
-class Test(object):
+class Wrapped(object):
     """
     A class which mimics the basic structure and modules used by
     normal ovirt.node.config.defaults classes so the functionality

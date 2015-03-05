@@ -25,7 +25,7 @@ from dbus.mainloop.glib import DBusGMainLoop
 import gobject
 import logging
 import sys
-from testers import Unwrapped, Test
+from testers import Unwrapped, Wrapped
 from factory import DBusFactory
 from wrappers import ConfigDefaultsWrapper
 import log
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         loop = gobject.MainLoop()
         logger.info("listening ...")
         if "--test" in sys.argv:
-            c = ConfigDefaultsWrapper(Test)
+            c = ConfigDefaultsWrapper(Wrapped)
             d = DBusFactory(BUS_NAME, c, instance=c.instance)
             d.service_factory()
             p = DBusFactory(BUS_NAME, Unwrapped)
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     elif "-c" in sys.argv and "--test" in sys.argv:
         bus = dbus.SystemBus()
-        obj = bus.get_object(BUS_NAME, "/org/ovirt/node/Test")
+        obj = bus.get_object(BUS_NAME, "/org/ovirt/node/Wrapped")
         helloservice = dbus.Interface(obj, "org.ovirt.node")
         print helloservice.configure_one("/files/etc/hostname/hostname")
         print helloservice.configure_multi(1, 2)
