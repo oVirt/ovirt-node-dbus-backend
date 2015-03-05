@@ -49,7 +49,7 @@ class Wrapped(object):
     output = "Not run yet"
 
     def get(self, path):
-        return augeas.augeas().get(path)
+        return augeas.Augeas().get(path)
 
     def configure_one(self, path):
         self.output = self.get(path)
