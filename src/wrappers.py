@@ -33,6 +33,18 @@ class ConfigDefaultsWrapper(object):
 
     Run through the list and dynamically add them to this class
     inside closures
+
+    >>> class Dummy(object):
+    ...     def configure(self):
+    ...         pass
+    ...     def configure_extra(self):
+    ...         pass
+    ...     def dontexport(self):
+    ...         pass
+    >>> c = ConfigDefaultsWrapper(Dummy)
+    >>> [getattr(c, func).__name__ for func in dir(c) if
+    ...     func.startswith("configure")]
+    ['configure', 'configure_extra']
     """
 
     def __init__(self, cls):
@@ -42,6 +54,23 @@ class ConfigDefaultsWrapper(object):
         self.instance = cls()
 
     def dbus_unwrapper(self, arg):
+        """
+        Convert Dbus types into something ovirt.node.valid can deal
+        with. config.defaults seems to be fine on its own, but better
+        safe than sorry with types
+
+        >>> class Dummy(object):
+        ...     pass
+        >>> c = ConfigDefaultsWrapper(Dummy)
+        >>> c.dbus_unwrapper(dbus.String("test"))
+        u'test'
+        >>> c.dbus_unwrapper(dbus.Int32(12345))
+        12345
+        >>> c.dbus_unwrapper(dbus.Boolean(False))
+        False
+        >>> c.dbus_unwrapper(dbus.Array([dbus.Int32(123), dbus.String("x")]))
+        [123, u'x']
+        """
         if type(arg) is dbus.String:
             return "%s" % arg
         if type(arg) is dbus.Array:
@@ -79,6 +108,24 @@ class ConfigDefaultsWrapper(object):
 class TransactionWrapper(TransactionProgress):
     """
     Run a transaction inside Dbus. Return the output as a string
+
+    >>> from ovirt.node.utils import Transaction
+    >>> class StepA(Transaction.Element):
+    ...     title = "StepA"
+    ...     def commit(self):
+    ...         pass
+    >>> class StepB(Transaction.Element):
+    ...     title = "StepB"
+    ...     def commit(self):
+    ...         pass
+    >>> t = Transaction("Doctest", [StepA(), StepB()])
+    >>> print TransactionWrapper(t, is_dry=False).run()
+    Doctest
+    -------
+    Checking pre-conditions ...
+    (1/2) StepA
+    (2/2) StepB
+    All changes were applied successfully.
     """
 
     def __init__(self, transaction, is_dry, initial_text=""):
