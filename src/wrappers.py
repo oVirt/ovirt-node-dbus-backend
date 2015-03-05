@@ -19,6 +19,7 @@
 # also available at http://www.gnu.org/copyleft/gpl.html.
 
 import dbus
+import re
 from decorator import decorator
 from ovirt.node.utils.console import TransactionProgress
 
@@ -91,6 +92,7 @@ class TransactionWrapper(TransactionProgress):
         if self.transaction:
             self.logger.debug("Initiating transaction")
             super(TransactionWrapper, self).run_transaction()
+            self.texts = [re.sub(r'\n', '', x) for x in self.texts]
             return "\n".join(filter(bool, self.texts))
         else:
             self.update("There were no changes, nothing to do.")
