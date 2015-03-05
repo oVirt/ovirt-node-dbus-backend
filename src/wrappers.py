@@ -91,7 +91,7 @@ class TransactionWrapper(TransactionProgress):
         if self.transaction:
             self.logger.debug("Initiating transaction")
             super(TransactionWrapper, self).run_transaction()
-            return "\n".join(self.texts)
+            return "\n".join(filter(bool, self.texts))
         else:
             self.update("There were no changes, nothing to do.")
 
