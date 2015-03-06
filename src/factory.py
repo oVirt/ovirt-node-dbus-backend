@@ -33,12 +33,11 @@ class DBusFactory(object):
 
     Pass in an instance of the base class if it's a wrapped class
     """
-    def __init__(self, name, cls, instance=None, bus=None):
+    def __init__(self, name, cls, instance=None):
         self.cls = cls
         self.name = name
         self.instance = instance or cls()
         self.logger = logging.getLogger(__name__)
-        self.bus = bus
 
     def service_factory(self):
         """
@@ -54,13 +53,13 @@ class DBusFactory(object):
         name = self.name
         path = "/" + name.replace(".", "/")
         leaf = "%s/%s" % (path, cls.__name__)
-        bus_handle = self.bus or dbus.SystemBus()
 
         self.logger.debug("Factory started for %s" % self.cls.__name__)
 
         class Service(dbus.service.Object):
             def __init__(self):
-                bus = dbus.service.BusName(name, bus=bus_handle)
+                print dbus.SystemBus()
+                bus = dbus.service.BusName(name, bus=dbus.SystemBus())
                 dbus.service.Object.__init__(self, bus, leaf)
 
             def instance_method(obj):
