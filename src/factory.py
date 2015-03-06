@@ -53,13 +53,23 @@ class DBusFactory(object):
         name = self.name
         path = "/" + name.replace(".", "/")
         leaf = "%s/%s" % (path, cls.__name__)
+        logger = self.logger
 
         self.logger.debug("Factory started for %s" % self.cls.__name__)
 
         class Service(dbus.service.Object):
             def __init__(self):
-                bus = dbus.service.BusName(name, bus=dbus.SystemBus())
-                dbus.service.Object.__init__(self, bus, leaf)
+                try:
+                    bus = dbus.service.BusName(name, bus=dbus.SystemBus())
+                    dbus.service.Object.__init__(self, bus, leaf)
+                except dbus.exceptions.DBusException as e:
+                    import sys
+                    import traceback
+                    logger.error("Something went wrong starting dbus or "
+                                 "acquiring a handle to the system bus. "
+                                 "Have the dbus policies been changed? ")
+                    logger.error(traceback.format_exc())
+                    sys.exit(1)
 
             def instance_method(obj):
                 """
@@ -118,16 +128,16 @@ class DBusFactory(object):
                 setattr(self, method.__name__, closed)
 
             for method in methods():
-                self.logger.debug("Found a function named %s" %
-                                  method.func_name)
+                logger.debug("Found a function named %s" %
+                             method.func_name)
 
                 # Add to local variables so we can export it but still do
                 # some metaprogramming, like resetting the class name, which
                 # we can't do without referencing it directly
                 locals()[method.__name__] = method
                 locals()[method.__name__].im_class = instance.__class__
-                self.logger.info("Exporting %s on %s: %s" % (method.__name__,
-                                 leaf, name))
+                logger.info("Exporting %s on %s: %s" % (method.__name__,
+                            leaf, name))
                 dbus.service.method(name)(locals()[method.__name__])
 
         return Service()
