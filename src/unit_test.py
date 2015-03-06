@@ -20,7 +20,7 @@
 # also available at http://www.gnu.org/copyleft/gpl.html.
 
 from dbus.mainloop.glib import DBusGMainLoop
-#import dbusmock
+import dbusmock
 import mock
 import unittest
 from testers import Unwrapped
@@ -42,10 +42,11 @@ class TestFactory(dbusmock.DBusTestCase):
                                         system_bus=True)
 
     @mock.patch('augeas.Augeas.get')
-    def test_unwrapped_augeas_no_dbus(self, mock_augeas):
+    @mock.patch('dbus.SystemBus')
+    def test_unwrapped_augeas_no_dbus(self, mock_dbus, mock_augeas):
+        mock_dbus.return_value = self.dbus_con
         mock_augeas.return_value = "test_value"
-        instance = DBusFactory("org.ovirt.node", Unwrapped,
-                               bus=self.dbus_con)
+        instance = DBusFactory("org.ovirt.node", Unwrapped)
         instance.service_factory()
         instance.configure(instance, "x")
         self.assertEqual(instance.configure_return(instance),
