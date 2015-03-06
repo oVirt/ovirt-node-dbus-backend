@@ -21,7 +21,18 @@
 import dbus
 import re
 from decorator import decorator
-from ovirt.node.utils.console import TransactionProgress
+
+
+try:
+    from ovirt.node.utils.console import TransactionProgress
+except ImportError as e:
+    import sys
+    import traceback
+    sys.stderr.write('FATAL: ovirt.node.utils.console.TransactionProgress '
+                     'could not be imported. Is ovirt-node-lib-config '
+                     'installed?\n')
+    sys.stderr.write("%s" % traceback.format_exc())
+    sys.exit(1)
 
 
 class ConfigDefaultsWrapper(object):

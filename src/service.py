@@ -51,7 +51,15 @@ if __name__ == "__main__":
             p = DBusFactory(BUS_NAME, Unwrapped)
             p.service_factory()
         else:
-            from ovirt.node.config import defaults
+            try:
+                from ovirt.node.config import defaults
+            except ImportError as e:
+                import sys
+                logger.error("ovirt.node.config.defaults could not be "
+                             "imported. Is ovirt-node-lib-config installed? "
+                             "If so, try manually importing it and seeing if "
+                             "a dependency is missing")
+                sys.exit(1)
             import inspect
             for name, obj in inspect.getmembers(defaults):
                 if inspect.isclass(obj) and \
