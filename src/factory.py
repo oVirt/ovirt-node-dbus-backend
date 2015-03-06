@@ -64,11 +64,10 @@ class DBusFactory(object):
                     dbus.service.Object.__init__(self, bus, leaf)
                 except dbus.exceptions.DBusException as e:
                     import sys
-                    import traceback
                     logger.error("Something went wrong starting dbus or "
                                  "acquiring a handle to the system bus. "
-                                 "Have the dbus policies been changed? ")
-                    logger.error(traceback.format_exc())
+                                 "Have the dbus policies been changed? ",
+                                 exc_info=True)
                     sys.exit(1)
 
             def instance_method(obj):

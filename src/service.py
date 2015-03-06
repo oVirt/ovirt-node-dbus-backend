@@ -58,7 +58,8 @@ if __name__ == "__main__":
                 logger.error("ovirt.node.config.defaults could not be "
                              "imported. Is ovirt-node-lib-config installed? "
                              "If so, try manually importing it and seeing if "
-                             "a dependency is missing")
+                             "a dependency is missing", exc_info=True)
+
                 sys.exit(1)
             import inspect
             for name, obj in inspect.getmembers(defaults):
