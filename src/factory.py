@@ -62,7 +62,7 @@ class DBusFactory(object):
                 try:
                     bus = dbus.service.BusName(name, bus=dbus.SystemBus())
                     dbus.service.Object.__init__(self, bus, leaf)
-                except dbus.exceptions.DBusException as e:
+                except dbus.exceptions.DBusException:
                     import sys
                     logger.error("Something went wrong starting dbus or "
                                  "acquiring a handle to the system bus. "

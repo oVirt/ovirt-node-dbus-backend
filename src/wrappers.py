@@ -30,8 +30,8 @@ except ImportError as e:
     import traceback
     sys.stderr.write('FATAL: ovirt.node.utils.console.TransactionProgress '
                      'could not be imported. Is ovirt-node-lib-config '
-                     'installed?\n', exc_info=True)
-    ssys.stderr.write("%s" % traceback.format_exc())
+                     'installed?\n')
+    sys.stderr.write("%s" % traceback.format_exc())
     sys.exit(1)
 
 
