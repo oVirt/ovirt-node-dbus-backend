@@ -15,6 +15,11 @@
 # MA  02110-1301, USA.  A copy of the GNU General Public License is
 # also available at http://www.gnu.org/copyleft/gpl.html.
 
+export PYTHONPATH=$(top_srcdir)/src
+export PYFLAKES_BUILTINS=_
+
+PYTHONSOURCES:=$(shell find . -name '*.py')
+
 nodeconfdir = $(sysconfdir)/sysconfig
 
 pyovirtdbusdir = $(pythondir)/ovirt/node/dbus
@@ -26,14 +31,42 @@ pyovirtdbus_PYTHON = \
   testers.py \
   wrappers.py
 
-# Requires python-pep8 package (Fedora)
-check-local: check-local-pep8
+check-local: check-static
+	@echo -e "---\n Passed $@\n---"
 
-check-local-pep8:
-	find $(srcdir) -name \*.py | sort | uniq | xargs pep8 --repeat --statistics --count
+check-static: check-static-doctests check-static-pep8 check-static-pyflakes
+	@echo Passed $@
 
-check-local-doctest:
-	find $(srcdir) -name \*.py | sort | uniq | xargs python -m doctest -v
+check-static-xmllint: $(XMLSOURCES:%=%.xmllint)
+	@echo Passed $@
 
-clean-local:
-	rm -f config.py
+%.xmllint:
+	xmllint --noout "$*"
+
+check-static-doctests: $(PYTHONSOURCES:%=%.doctest)
+	@echo Passed $@
+
+%.doctest:
+	@if grep -q ">>>" "$*" ; then set -x ; python -m doctest "$*" ; fi ;
+
+check-static-pep8: $(PYTHONSOURCES:%=%.pep8)
+	@echo Passed $@
+
+%.pep8:
+	pep8 -r "$*"
+
+# FIXME Pylint is very strict, needs to be configured
+# Maybe take a peek at a diff. proj. to find a sane configuration
+PYLINT=pylint -f parseable --include-ids=yes --rcfile=.pylintrc
+check-static-pylint: $(PYTHONSOURCES:%=%.pylint)
+	@echo Passed $@
+
+%.pylint:
+	$(PYLINT) "$*"
+
+check-static-pyflakes: $(PYTHONSOURCES:%=%.pyflakes)
+	@echo Passed $@
+
+PYFLAKES_BUILTINS = "_"
+%.pyflakes:
+	pyflakes "$*"
