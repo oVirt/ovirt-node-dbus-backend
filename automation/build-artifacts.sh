@@ -5,7 +5,7 @@ shopt -s nullglob
 # cleanup
 rm -Rf \
     exported-artifacts \
-    tmp.repos \
+    tmp.repos
 mkdir exported-artifacts
 
 # generate automake/autoconf files
